@@ -19,9 +19,14 @@ dependencies:
   image_picker: ^0.8.7+2
   video_player: ^2.6.1
   #Procesamiento de Video FFMPEG para extraer Frames
-  flutter_ffmpeg: ^0.4.0
+  #flutter_ffmpeg: ^0.4.0
+  ffmpeg_kit_flutter: ^6.0.3
+  #ffmpeg_kit_flutter:
+   # git:
+    #  url: https://github.com/tanersener/ffmpeg-kit.git #-flutter.git
+     # path: flutter/flutter/lib/ffmpeg_kit #flutter/ffmpeg-kit-flutter
   #Prediccion de Video con TensorFlow Lite
-  tflite_flutter: ^0.10.3
+  tflite_flutter: ^0.11.0
   #Procesamiento de Imágenes
   image: ^4.2.0
   #Permisos de Camara y Almacenamiento
