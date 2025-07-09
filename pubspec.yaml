@@ -34,9 +34,19 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  # Icono de la Aplicacion
+  flutter_launcher_icons: ^0.14.4
+
+# Colocar el icono de la aplicacion
+flutter_launcher_icons:
+  image_path: "assets/logo.png"
+  android: true
+  ios: true
+
 
 flutter:
   uses-material-design: true
   assets:
     - assets/modelo_lengua_senas.tflite
+    - assets/logo.png
 
