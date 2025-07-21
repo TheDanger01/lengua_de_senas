@@ -15,28 +15,59 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
   bool cargando = false;
 
   Future<void> _iniciarProceso() async {
-    setState(() => cargando = true);
+    try {
+      setState(() {
+        cargando = true;
+        resultado = '';
+      });
 
-    // Paso 1: Grabar video
-    File? video = await grabarVideo();
-    if (video == null) {
-      setState(() => cargando = false);
-      return;
+      // Paso 1: Grabar video
+      //Print Borrar    dlsjgdlkgkldf
+      print('Iniciando grabación de video...');
+      File? video = await grabarVideo();
+      if (video == null) {
+        print("No se pudo Grabar el video.");
+        setState(() {
+          cargando = false;
+          resultado = 'No se pudo Grabar el video.';
+        });
+        return;
+      }
+      print('Video grabado: ${video.path}');
+
+      // Paso 2: Extraer frames
+      print('Extrayendo frames del video...');
+      //List<File> frames = await extraerFrames(video);   -- VERSION ANTERIOR CON FFMPG
+      List<File> frames = await extraerFrames(context, video);
+      if (frames.isEmpty) {
+        print("No se pudieron extraer frames del video.");
+        setState(() {
+          cargando = false;
+          resultado = 'No se pudieron extraer frames del video.';
+        });
+        return;
+      }
+      print('Frames extraídos: ${frames.length}');
+
+      // Paso 3: Predecir secuencia
+      print('Prediciendo la frase desde los frames...');
+      String frase = await predecirFraseDesdeFrames(frames);
+      print('Frase predicha: $frase');
+      if (frase.isEmpty) {
+        frase = 'Los Gestos Realizados no son Reconocidos y No se Pudo Traducir';
+      }
+      setState(() {
+        resultado = frase;
+        cargando = false;
+      });
+    } catch (e, stack) {
+      print('Error durante el proceso: $e');
+      print('Stack trace: \n$stack');
+      setState(() {
+        cargando = false;
+        resultado = 'Error durante el proceso: $e';
+      });
     }
-
-    // Paso 2: Extraer frames
-    List<File> frames = await extraerFrames(video);
-
-    // Paso 3: Predecir secuencia
-    String frase = await predecirFraseDesdeFrames(frames);
-
-    setState(() {
-      resultado =
-          frase.trim().isEmpty
-              ? 'Los Gestos Realizados no son Reconocidos y No se Pudo Traducir'
-              : frase;
-      cargando = false;
-    });
   }
 
   @override

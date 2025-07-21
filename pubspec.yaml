@@ -11,24 +11,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  camera: ^0.10.0
+  camera: ^0.11.2
   #Acceso a Sistema de Archivos
   path_provider: ^2.0.11
   cupertino_icons: ^1.0.8
   #Camara y Video   [subir image_picker: ^0.8.9+2]
-  image_picker: ^0.8.7+2
+  image_picker: ^1.1.2
   video_player: ^2.6.1
+  screenshot: ^3.0.0
   #Procesamiento de Video FFMPEG para extraer Frames
   #flutter_ffmpeg: ^0.4.0
   #ffmpeg_kit_flutter: ^6.0.3
-  #ffmpeg_kit_flutter_new: ^2.0.0
   ffmpeg_kit_flutter_minimal: ^6.0.8
   #Prediccion de Video con TensorFlow Lite
   tflite_flutter: ^0.11.0
   #Procesamiento de Imágenes
   image: ^4.2.0
   #Permisos de Camara y Almacenamiento
-  permission_handler: ^11.3.0
+  permission_handler: ^12.0.1
 
 dev_dependencies:
   flutter_test:
