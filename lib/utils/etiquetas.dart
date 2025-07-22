@@ -26,9 +26,6 @@ const List<String> etiquetas = [
   'X',
   'Y',
   'Z',
-  'Hola',
-  'me',
-  'llamo',
-  'como',
-  'estas',
+  'Hola Como Estas',
+  'Me Llamo',
 ];

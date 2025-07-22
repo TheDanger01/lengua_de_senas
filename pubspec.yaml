@@ -47,6 +47,6 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
   assets:
-    - assets/modelo_lengua_senas.tflite
+    - assets/modelo1.tflite
     - assets/logo.png
 

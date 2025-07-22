@@ -7,12 +7,13 @@ late Interpreter interpreter;
 
 /// Carga el modelo TFLite desde los assets
 Future<void> cargarModelo() async {
-  interpreter = await Interpreter.fromAsset('modelo_lengua_senas.tflite');
+  interpreter = await Interpreter.fromAsset('assets/modelo1.tflite');
 }
 
 /// Dada una lista de frames (imágenes), predice la frase completa
 Future<String> predecirFraseDesdeFrames(List<File> frames) async {
-  if (interpreter == null) await cargarModelo();
+  //if (interpreter == null)
+  await cargarModelo();
 
   List<String> predicciones = [];
 
