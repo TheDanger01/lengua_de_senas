@@ -54,7 +54,8 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
       String frase = await predecirFraseDesdeFrames(frames);
       print('Frase predicha: $frase');
       if (frase.isEmpty) {
-        frase = 'Los Gestos Realizados no son Reconocidos y No se Pudo Traducir';
+        frase =
+            'Los Gestos Realizados no son Reconocidos y No se Pudo Traducir';
       }
       setState(() {
         resultado = frase;

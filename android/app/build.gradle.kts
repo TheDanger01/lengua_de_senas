@@ -42,3 +42,11 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    //implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}")
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    //implementation("dev.flutter:flutter-gradle-plugin:${flutter.flutterGradlePluginVersion}")
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite-select-tf-ops:2.14.0")
+}
