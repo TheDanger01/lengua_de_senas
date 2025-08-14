@@ -12,6 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
   camera: ^0.11.2
+  #Mediapipe, para deteccion de manos
+  google_mlkit_pose_detection: ^0.14.0 #0.11.0
+  hand_landmarker: ^2.1.0
   #Acceso a Sistema de Archivos
   path_provider: ^2.0.11
   cupertino_icons: ^1.0.8
@@ -27,7 +30,7 @@ dependencies:
   tflite_flutter: ^0.11.0
   #tflite_flutter_helper: ^0.4.0
   #Procesamiento de Imágenes
-  image: ^4.2.0
+  image: ^4.5.4
   #Permisos de Camara y Almacenamiento
   permission_handler: ^12.0.1
 
@@ -50,6 +53,8 @@ flutter:
   assets:
     - assets/modelo1.tflite
     - assets/modelo2.tflite
-    - assets/modeloV11.tflite
     - assets/modeloV100.tflite
+    - assets/modeloV200.tflite
     - assets/logo.png
+    - assets/mediapipe_hand-handdetector.tflite
+    - assets/mediapipe_hand-handlandmarkdetector.tflite

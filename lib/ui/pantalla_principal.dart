@@ -22,7 +22,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
       });
 
       // Paso 1: Grabar video
-      //Print Borrar    dlsjgdlkgkldf
+      //Print Borrar
       print('Iniciando grabación de video...');
       File? video = await grabarVideo();
       if (video == null) {
@@ -74,7 +74,10 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Traductor de Señas')),
+      appBar: AppBar(
+          title: Text('Traductor de Señas Chilenas',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          centerTitle: true,),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -84,10 +87,17 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
             if (!cargando && resultado.isNotEmpty)
               MostrarResultado(resultado: resultado),
             SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: cargando ? null : _iniciarProceso,
-              icon: Icon(Icons.videocam),
-              label: Text('Grabar y traducir'),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: cargando ? null : _iniciarProceso,
+                icon: Icon(Icons.videocam),
+                label: Text('Grabar y traducir'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF007BFF),
+                  foregroundColor: Colors.white,
+                  textStyle: TextStyle(fontSize: 18),
+                ),
+              ),
             ),
           ],
         ),

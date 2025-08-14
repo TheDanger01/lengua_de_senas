@@ -12,6 +12,7 @@ class LenguaDeSenasApp extends StatelessWidget {
       title: 'Traductor Lengua de Señas',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: PantallaPrincipal(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
