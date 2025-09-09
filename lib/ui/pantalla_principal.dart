@@ -1,76 +1,4 @@
-import 'package:flutter/material.dart';
-import '../services/grabar_video.dart';
-import '../services/procesar_video.dart';
-import '../services/predecir_video.dart';
-import '../widgets/mostrar_resultado.dart';
-import 'dart:io';
-
-class PantallaPrincipal extends StatefulWidget {
-  @override
-  _PantallaPrincipalState createState() => _PantallaPrincipalState();
-}
-
-class _PantallaPrincipalState extends State<PantallaPrincipal> {
-  String resultado = '';
-  bool cargando = false;
-
-  Future<void> _iniciarProceso() async {
-    try {
-      setState(() {
-        cargando = true;
-        resultado = '';
-      });
-
-      // Paso 1: Grabar video
-      //Print Borrar
-      print('Iniciando grabación de video...');
-      File? video = await grabarVideo();
-      if (video == null) {
-        print("No se pudo Grabar el video.");
-        setState(() {
-          cargando = false;
-          resultado = 'No se pudo Grabar el video.';
-        });
-        return;
-      }
-      print('Video grabado: ${video.path}');
-
-      // Paso 2: Extraer frames
-      print('Extrayendo frames del video...');
-      //List<File> frames = await extraerFrames(video);   -- VERSION ANTERIOR CON FFMPG
-      List<File> frames = await extraerFrames(context, video);
-      if (frames.isEmpty) {
-        print("No se pudieron extraer frames del video.");
-        setState(() {
-          cargando = false;
-          resultado = 'No se pudieron extraer frames del video.';
-        });
-        return;
-      }
-      print('Frames extraídos: ${frames.length}');
-
-      // Paso 3: Predecir secuencia
-      print('Prediciendo la frase desde los frames...');
-      String frase = await predecirFraseDesdeFrames(frames);
-      print('Frase predicha: $frase');
-      if (frase.isEmpty) {
-        frase =
-            'Los Gestos Realizados no son Reconocidos y No se Pudo Traducir';
-      }
-      setState(() {
-        resultado = frase;
-        cargando = false;
-      });
-    } catch (e, stack) {
-      print('Error durante el proceso: $e');
-      print('Stack trace: \n$stack');
-      setState(() {
-        cargando = false;
-        resultado = 'Error durante el proceso: $e';
-      });
-    }
-  }
-
+/*Formato Colores Antiguo
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,4 +32,145 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
       ),
     );
   }
+}*/
+
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import '../services/predecir_video.dart';
+import '../services/procesar_video.dart';
+import '../widgets/mostrar_resultado.dart';
+
+class PantallaPrincipal extends StatefulWidget {
+  const PantallaPrincipal({super.key});
+
+  @override
+  State<PantallaPrincipal> createState() => _PantallaPrincipalState();
 }
+
+class _PantallaPrincipalState extends State<PantallaPrincipal> {
+  final YoloPredictor _predictor = YoloPredictor();
+
+  File? _video;
+  bool _procesando = false;
+  double _progreso = 0.0;
+  List<String> _tokens = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initModel();
+  }
+
+  Future<void> _initModel() async {
+    await _predictor.loadModel();
+    if (!mounted) return;
+    setState(() {}); // refrescar estado
+  }
+
+  Future<void> _grabarVideo() async {
+    final picker = ImagePicker();
+    final x = await picker.pickVideo(source: ImageSource.camera, maxDuration: const Duration(seconds: 15));
+    if (x == null) return;
+    setState(() {
+      _video = File(x.path);
+      _tokens = [];
+    });
+  }
+
+  Future<void> _traducir() async {
+    if (_video == null || !_predictor.isLoaded) return;
+
+    setState(() { _procesando = true; _progreso = 0.0; _tokens = []; });
+
+    final res = await procesarVideo(_video!.path, _predictor, onProgress: (p) {
+      setState(() { _progreso = p; });
+    });
+
+    setState(() {
+      _tokens = res;
+      _procesando = false;
+      _progreso = 1.0;
+    });
+  }
+
+  @override
+  void dispose() {
+    _predictor.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final listo = _predictor.isLoaded;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Traductor de Señas por Video')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: listo && !_procesando ? _grabarVideo : null,
+                    icon: const Icon(Icons.videocam),
+                    label: const Text('Grabar video'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: listo && !_procesando && _video != null ? _traducir : null,
+                    icon: const Icon(Icons.translate),
+                    label: const Text('Traducir'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (_video != null) Text('Video: ${_video!.path}', maxLines: 1, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 12),
+            if (_procesando) LinearProgressIndicator(value: _progreso),
+            const SizedBox(height: 12),
+            Expanded(child: MostrarResultados(tokens: _tokens)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+  /*@override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Traductor de Señas Chilenas',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (cargando) CircularProgressIndicator(),
+            if (!cargando && resultado.isNotEmpty)
+              MostrarResultado(resultado: resultado),
+            SizedBox(height: 24),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: cargando ? null : procesarVideo,
+                icon: Icon(Icons.videocam),
+                label: Text('Grabar y traducir'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF007BFF),
+                  foregroundColor: Colors.white,
+                  textStyle: TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }*/

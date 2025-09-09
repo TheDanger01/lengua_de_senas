@@ -1,4 +1,4 @@
-import 'dart:io';
+/*import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
 Future<File?> grabarVideo() async {
@@ -14,4 +14,19 @@ Future<File?> grabarVideo() async {
   if (videoFile == null) return null;
 
   return File(videoFile.path);
+}*/
+
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+
+class VideoService {
+  final ImagePicker _picker = ImagePicker();
+
+  Future<File?> grabarVideo() async {
+    final pickedFile = await _picker.pickVideo(source: ImageSource.camera);
+    if (pickedFile != null) {
+      return File(pickedFile.path);
+    }
+    return null;
+  }
 }

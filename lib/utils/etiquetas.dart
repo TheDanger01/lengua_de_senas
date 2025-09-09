@@ -1,46 +1,14 @@
-/*const List<String> etiquetas = [
-  'A',
-  'B',
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'H',
-  'Hola Como Estas',
-  'I',
-  'J',
-  'K',
-  'L',
-  'M',
-  'Me Llamo',
-  'N',
-  'Ñ',
-  'O',
-  'P',
-  'Q',
-  'R',
-  'S',
-  'T',
-  'U',
-  'V',
-  'W',
-  'X',
-  'Y',
-  'Z',
-];*/
-
 const List<String> etiquetas = [
   'A',        // 0
   'B',        // 1
-  'C',        // 2
+  'HOLA',        // 2
   'D',        // 3
   'E',        // 4
   'F',        // 5
   'G',        // 6
   'GRACIAS',  // 7
   'H',        // 8
-  'HOLA',     // 9
+  'C',     // 9
   'I',        // 10
   'J',        // 11
   'K',        // 12
@@ -54,10 +22,38 @@ const List<String> etiquetas = [
   'R',        // 20
   'S',        // 21
   'T',        // 22
-  'U',        // 23
-  'V',        // 24
-  'W',        // 25
-  'X',        // 26
-  'Y',        // 27
-  'Z',         // 28
+  'TE AMO',   // 23
+  'U',        // 24
+  'V',        // 25
+  'W',        // 26
+  'X',        // 27
+  'Y',        // 28
+  'Z',         // 29
 ];
+
+/*import 'dart:async';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:yaml/yaml.dart';
+
+List<String> etiquetas = [];
+
+/// Cargar etiquetas desde el archivo data.yaml de Roboflow
+Future<void> cargarEtiquetas() async {
+  if (etiquetas.isNotEmpty) return; // evita recargar varias veces
+
+  final yamlString = await rootBundle.loadString('assets/ModeloV3metadata.yaml');
+  final yaml = loadYaml(yamlString);
+
+  // Roboflow guarda las clases en la clave "names"
+  final names = yaml['names'];
+
+  if (names is List) {
+    etiquetas = names.map((e) => e.toString()).toList();
+  } else if (names is Map) {
+    etiquetas = names.values.map((e) => e.toString()).toList();
+  } else {
+    throw Exception("Formato inesperado en data.yaml");
+  }
+
+  print("Etiquetas cargadas: $etiquetas");
+}*/

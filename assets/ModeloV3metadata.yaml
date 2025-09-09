@@ -1,0 +1,50 @@
+description: Ultralytics best model trained on /content/Lengua-de-Señas-V7-2/data.yaml
+author: Ultralytics
+date: '2025-09-08T21:59:39.070247'
+version: 8.3.196
+license: AGPL-3.0 License (https://ultralytics.com/license)
+docs: https://docs.ultralytics.com
+stride: 32
+task: detect
+batch: 1
+imgsz:
+- 416
+- 416
+names:
+  0: A
+  1: B
+  2: C
+  3: D
+  4: E
+  5: F
+  6: G
+  7: GRACIAS
+  8: H
+  9: HOLA
+  10: I
+  11: J
+  12: K
+  13: L
+  14: M
+  15: N
+  16: O
+  17: P
+  18: POR FAVOR
+  19: Q
+  20: R
+  21: S
+  22: T
+  23: TE AMO
+  24: U
+  25: V
+  26: W
+  27: X
+  28: Y
+  29: Z
+args:
+  batch: 1
+  fraction: 1.0
+  half: false
+  int8: false
+  nms: false
+channels: 3

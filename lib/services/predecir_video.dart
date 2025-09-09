@@ -1,142 +1,82 @@
-//Version 1 Original
-/*
-import 'dart:io';
+// Version 4 - yolo [1, 34, 1029]
+
+import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import '../utils/etiquetas.dart';
 
-late Interpreter interpreter;
+class YoloPredictor {
+  late Interpreter _interpreter;
+  bool _loaded = false;
 
-/// Carga el modelo TFLite desde los assets
-Future<void> cargarModelo() async {
-  interpreter = await Interpreter.fromAsset('assets/modeloV200.tflite');
-}
-
-/// Dada una lista de frames (imágenes), predice la frase completa
-Future<String> predecirFraseDesdeFrames(List<File> frames) async {
-  //if (interpreter == null)
-  await cargarModelo();
-
-  List<String> predicciones = [];
-  String? ultimaLetra;
-
-  for (final frameFile in frames) {
-    final resultado = await predecirGestoDesdeImagen(frameFile);
-
-    // Evitar repetir el mismo gesto consecutivo
-    if (predicciones.isEmpty || predicciones.last != resultado) {
-      predicciones.add(resultado);
-    }
-
-    ultimaLetra = resultado;
+  Future<void> loadModel() async {
+    final opts = InterpreterOptions()..threads = 4;
+    // OJO: el asset debe llamarse exactamente como en pubspec
+    _interpreter = await Interpreter.fromAsset('assets/ModeloV3best_float32.tflite', options: opts);
+    //await cargarEtiquetas(); // <--- AÑADIDO AQUÍ
+    //_interpreter = await Interpreter.fromAsset('assets/ModeloV1.tflite',
+    //_interpreter = await Interpreter.fromAsset('assets/ModeloV2.tflite',
+    _loaded = true;
   }
 
-  return predicciones.join(' ');
-}
+  bool get isLoaded => _loaded;
 
-/// Procesa una imagen individual y predice el gesto asociado
-Future<String> predecirGestoDesdeImagen(File frameFile) async {
-  final bytes = await frameFile.readAsBytes();
-  final image = img.decodeImage(bytes);
+  /// Devuelve el label más confiable del frame (o null si nada supera el umbral).
+  Future<String?> runOnFrame(Uint8List frameBytes, {double threshold = 0.35}) async {
+    if (!_loaded) return null;
 
-  if (image == null) return 'Desconocido';
+    final img.Image? decoded = img.decodeImage(frameBytes);
+    if (decoded == null) return null;
 
-  // Redimensionar la imagen a 224x224
-  final resized = img.copyResize(image, width: 224, height: 224);
+    // Input: 1x640x640x3 float32 normalizado 0..1
+    final img.Image resized = img.copyResize(decoded, width: 416, height: 416);
 
-  // Formato requerido por el modelo: [1, 224, 224, 3]
-  final input = List.generate(
-    1,
-        (_) => List.generate(
-      224,
-          (y) => List.generate(224, (x) {
-        final pixel = resized.getPixel(x, y);
-        return [pixel.rNormalized, pixel.gNormalized, pixel.bNormalized];
-      }),
-    ),
-  );
+    // Construimos como listas (más simple y seguro; si quieres máximo rendimiento, migramos a Float32List directos).
+    final input = List.generate(1, (_) =>
+        List.generate(416, (y) =>
+            List.generate(416, (x) {
+              final p = resized.getPixel(x, y);
+              return [
+                p.r / 255.0,
+                p.g / 255.0,
+                p.b / 255.0,
+              ];
+            })
+        )
+    );
 
-  final output = List.generate(1, (_) => List.filled(etiquetas.length, 0.0));
+    // Salida real de tu modelo: [1, 84, 8400]
+    final output = List.generate(1, (_) => List.generate(34, (_) => List.filled(3549, 0.0)));
 
-  interpreter.run(input, output);
+    _interpreter.run(input, output);
 
-  final maxIndex = output[0].indexWhere(
-        (v) => v == output[0].reduce((a, b) => a > b ? a : b),
-  );
+    // Buscar la clase con mayor score entre todas las anclas
+    int bestClass = -1;
+    double bestScore = 0.0;
 
-  return etiquetas[maxIndex];
-}*/
-
-// Version 2 - Con recorte de mano BORRAR
-/*
-  // Seguridad: si maxIndex fuera -1 o no válido, devolver 'Desconocido'
-  if (maxIndex < 0 || maxIndex >= etiquetas.length) return 'Desconocido';
-  return etiquetas[maxIndex];
-}*/
-//// Version 3 - google_mlkit_pose_detection: ^0.14.0
-import 'dart:io';
-import 'package:image/image.dart' as img;
-import 'package:tflite_flutter/tflite_flutter.dart';
-import '../utils/etiquetas.dart';
-
-late Interpreter interpreter;
-
-/// Carga el modelo TFLite desde los assets
-Future<void> cargarModelo() async {
-  interpreter = await Interpreter.fromAsset('assets/modeloV200.tflite');
-}
-
-/// Dada una lista de frames (imágenes), predice la frase completa
-Future<String> predecirFraseDesdeFrames(List<File> frames) async {
-  //if (interpreter == null)
-  await cargarModelo();
-
-  List<String> predicciones = [];
-  String? ultimaLetra;
-
-  for (final frameFile in frames) {
-    final resultado = await predecirGestoDesdeImagen(frameFile);
-
-    // Evitar repetir el mismo gesto consecutivo
-    if (predicciones.isEmpty || predicciones.last != resultado) {
-      predicciones.add(resultado);
+    for (int c = 0; c < 34; c++) {
+      for (int a = 0; a < 3549; a++) {
+        final s = output[0][c][a];
+        if (s > bestScore) {
+          bestScore = s;
+          bestClass = c;
+        }
+      }
     }
 
-    ultimaLetra = resultado;
+    if (bestClass == -1 || bestScore < threshold) return null;
+    // Mapear al label (etiquetas tiene 30; si tu modelo tiene 34, ajusta la lista)
+    if (bestClass >= 0 && bestClass < etiquetas.length) {
+      return etiquetas[bestClass];
+    }
+    // Si hay clases extra no listadas, podrías devolver null o "UNK"
+    return null;
   }
 
-  return predicciones.join(' ');
-}
-
-/// Procesa una imagen individual y predice el gesto asociado
-Future<String> predecirGestoDesdeImagen(File frameFile) async {
-  final bytes = await frameFile.readAsBytes();
-  final image = img.decodeImage(bytes);
-
-  if (image == null) return 'Gesto Desconocido';
-
-  // Redimensionar la imagen a 224x224
-  final resized = img.copyResize(image, width: 224, height: 224);
-
-  // Formato requerido por el modelo: [1, 224, 224, 3]
-  final input = List.generate(
-    1,
-        (_) => List.generate(
-      224,
-          (y) => List.generate(224, (x) {
-        final pixel = resized.getPixel(x, y);
-        return [pixel.rNormalized, pixel.gNormalized, pixel.bNormalized];
-      }),
-    ),
-  );
-
-  final output = List.generate(1, (_) => List.filled(etiquetas.length, 0.0));
-
-  interpreter.run(input, output);
-
-  final maxIndex = output[0].indexWhere(
-        (v) => v == output[0].reduce((a, b) => a > b ? a : b),
-  );
-
-  return etiquetas[maxIndex];
+  void dispose() {
+    if (_loaded) {
+      _interpreter.close();
+      _loaded = false;
+    }
+  }
 }
