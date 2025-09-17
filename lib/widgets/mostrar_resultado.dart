@@ -7,8 +7,12 @@ class MostrarResultados extends StatelessWidget {
   /// Lista de tokens detectados por el modelo de predicción.
   /// Ejemplo: ['HOLA', 'M', 'E', 'L', 'L', 'A', 'M', 'O']
   final List<String> tokens;
+
+  /// Texto ya calculado por el widget padre (puede ser la traducción o mensajes como "— (sin video) y los otros estados")
+  final String displayText;
+
   /// Constructor que requiere la lista de tokens.
-  const MostrarResultados({super.key, required this.tokens});
+  const MostrarResultados({super.key, required this.tokens, required this.displayText}); // Constructor
 
   @override
   Widget build(BuildContext context) {
@@ -27,53 +31,57 @@ class MostrarResultados extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Título principal de la sección
-              const Text('Traducción Predecida:',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple
-                  ),
+              const Text(
+                'Traducción Predecida:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
               ),
               const SizedBox(height: 8),
 
-              // Muestra la traducción unida; si no hay tokens, muestra un texto por defecto
-              Text(texto.isEmpty ? '— (sin detecciones)' : texto,
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87
-                  ),
-                  softWrap: true, // Permite saltos de línea automáticos
+              // Muestra la traducción unida; si no hay tokens, muestra displayText (previamente calculado)
+              Text(
+                displayText,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+                softWrap: true,
               ),
               const SizedBox(height: 12),
 
               // Subtítulo para la sección de tokens individuales
-              const Text('Gestos detectados durante el Video:',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.deepPurple
-                  ),
+              const Text(
+                'Gestos detectados durante el Video:',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.deepPurple,
+                ),
               ),
               const SizedBox(height: 8),
 
               // Muestra cada token como un Chip visual, con separación de 8px
               Wrap(
                 spacing: 8,
-                children: tokens.map((t) {
-                  return Chip(
-                    label: Text(
-                      t,
-                      style: TextStyle(color: Colors.deepPurple),
-                    ),
-                    backgroundColor: Colors.deepPurple[100],
-                  );
-                }).toList(),
+                children:
+                    tokens.map((t) {
+                      return Chip(
+                        label: Text(
+                          t,
+                          style: TextStyle(color: Colors.deepPurple),
+                        ),
+                        backgroundColor: Colors.deepPurple[100],
+                      );
+                    }).toList(),
               ),
             ],
           ),
         ),
-      )
+      ),
     );
   }
 }

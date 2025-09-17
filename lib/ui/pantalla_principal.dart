@@ -75,9 +75,18 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
 
     setState(() { _procesando = true; _progreso = 0.0; _tokens = []; _procesado = false; });
 
-    final res = await procesarVideo(_video!.path, _predictor, onProgress: (p) {
+    /*final res = await procesarVideo(_video!.path, _predictor, onProgress: (p) {
       setState(() { _progreso = p; });
-    });
+    });*/// Final res -- ORIGINAL ANTERIOR
+    final res = await procesarVideo(
+      _video!.path,
+      _predictor,
+      onProgress: (p) { setState(() { _progreso = p; }); },
+      fps: 8,
+      minConsecutive: 1,
+      threshold: 0.75,
+    );
+
 
     setState(() {
       _tokens = res;
@@ -97,6 +106,28 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
   @override
   Widget build(BuildContext context) {
     final listo = _predictor.isLoaded; /// Verifica si el modelo está listo para usarse.
+    final texto = _tokens.join(' ');
+    // Calcular displayText según el estado actual (_video, _procesando, _procesado, _progreso)
+    String displayText;
+    if (_video == null) {
+      displayText = '— (Sin Video)'; //Recuerda grabar un video
+    } else if (_procesando) {
+      /*// Si quieres mostrar progreso en el texto
+      displayText = _progreso < 1.0
+          ? 'Procesando Video... ${(_progreso * 100).toStringAsFixed(1)}%'
+          : 'Video con procesamiento completado.';*/
+      displayText = '— (Procesando Video...)'; // Mostrar solo texto fijo durante procesamiento
+    } else if (!_procesado) {
+      // Hay video, pero todavía no se presionó traducir (no procesado)
+      displayText = '— (Pulse Traducir)'; // Recuerda presionar Traducir
+    } else {
+      // Ya se procesó
+      if (texto.isEmpty) {
+        displayText = '— NO SE ENCONTRÓ NINGÚN GESTO CONFIABLE EN EL VIDEO - POR FAVOR GRABE OTRO VIDEO'; // no se detectaron tokens
+      } else {
+        displayText = texto; // la traducción real
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -162,15 +193,20 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
               ],
             ],
             const SizedBox(height: 12),
-            //(Mostrar Ruta)if (_video != null) Text('Video: ${_video!.path}', maxLines: 1, overflow: TextOverflow.ellipsis),
-            //const SizedBox(height: 12),
+            /*(Mostrar Ruta -no necesario-)if (_video != null) Text('Video: ${_video!.path}', maxLines: 1, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 12),*/
 
             /// Barra de progreso durante el procesamiento
             if (_procesando) LinearProgressIndicator(value: _progreso),
             const SizedBox(height: 12),
 
             /// Widget que muestra los resultados de la traducción
-            Expanded(child: MostrarResultados(tokens: _tokens)),
+            Expanded(
+              child: MostrarResultados(
+                tokens: _tokens,
+                displayText: displayText,
+              ),
+            ),
           ],
         ),
       ),

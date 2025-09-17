@@ -1,5 +1,5 @@
 // Version Nueva - yolo [1, 34, 3549]
-import 'dart:typed_data';
+/*import 'dart:typed_data';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'predecir_video.dart';
@@ -47,9 +47,9 @@ Future<List<String>> procesarVideo(String videoPath, YoloPredictor predictor, {P
     // video_thumbnail maneja internamente MediaMetadataRetriever
     final Uint8List? frameBytes = await VideoThumbnail.thumbnailData(
       video: videoPath,
-      imageFormat: ImageFormat.JPEG,
+      imageFormat: ImageFormat.PNG,  // Formato PNG para mejor calidad O jpeg
       timeMs: timeMs,
-      quality: 75, // calidad media para optimizar rendimiento
+      quality: 100, // calidad media para optimizar rendimiento
     );
 
     // Si el frame no pudo extraerse, avanzar en progreso y continuar
@@ -74,5 +74,97 @@ Future<List<String>> procesarVideo(String videoPath, YoloPredictor predictor, {P
   }
 
   // Retornar lista final de tokens (traducción de señas)
+  return tokens;
+}*/
+
+// procesar_video.dart
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'predecir_video.dart';
+
+typedef Progress = void Function(double progress);
+
+/// Procesa el video frame por frame con:
+/// - extracción PNG (sin compresión),
+/// - filtrado por threshold (ej 0.75),
+/// - confirmación por frames consecutivos (minConsecutive).
+Future<List<String>> procesarVideo(
+    String videoPath,
+    YoloPredictor predictor, {
+      Progress? onProgress,
+      int fps = 8, // subir de 3 a 5 puede ayudar si las señas son rápidas
+      int minConsecutive = 1, // cuántos frames iguales se requieren para aceptar
+      double threshold = 0.75, // confianza mínima
+    }) async {
+  // 1) Obtener duración exacta con video_player
+  final controller = VideoPlayerController.file(File(videoPath));
+  await controller.initialize();
+  final durationMs = controller.value.duration.inMilliseconds;
+  await controller.dispose();
+
+  if (durationMs <= 0) return [];
+
+  final stepMs = (1000 / fps).round();
+  final totalFrames = (durationMs / stepMs).ceil();
+
+  final List<String> tokens = [];
+  String? candidate; // etiqueta candidato que estamos contando
+  int candidateCount = 0;
+
+  for (int i = 0; i < totalFrames; i++) {
+    final timeMs = i * stepMs;
+
+    final Uint8List? frameBytes = await VideoThumbnail.thumbnailData(
+      video: videoPath,
+      imageFormat: ImageFormat.PNG, // PNG reduce artefactos
+      timeMs: timeMs,
+      quality: 100,
+    );
+
+    if (frameBytes == null) {
+      onProgress?.call(i / totalFrames);
+      continue;
+    }
+
+    // Ejecutar predicción; devuelve Prediction(label, score) o (null, score)
+    final Prediction? pred = await predictor.runOnFrame(frameBytes, threshold: threshold);
+
+    // Si pred es null o label==null -> no hay pred válida en este frame
+    if (pred == null || pred.label == null) {
+      // reset candidato (rompemos la cadena consecutiva)
+      candidate = null;
+      candidateCount = 0;
+    } else {
+      final String lbl = pred.label!;
+      final double score = pred.score;
+
+      // Si es el mismo candidato, incrementa; si no, reinicia
+      if (candidate == lbl) {
+        candidateCount += 1;
+      } else {
+        candidate = lbl;
+        candidateCount = 1;
+      }
+
+      // Si alcanzamos la confirmación por consecutivos, aceptar
+      if (candidateCount >= minConsecutive) {
+        // Evitar agregar repetidos consecutivos en tokens
+        if (tokens.isEmpty || tokens.last != candidate) {
+          tokens.add(candidate!);
+        }
+        // Para evitar agregar la misma etiqueta una y otra vez sin "nueva confirmación",
+        // reiniciamos el candidato para requerir otra confirmación más adelante.
+        candidate = null;
+        candidateCount = 0;
+      }
+    }
+
+    onProgress?.call((i + 1) / totalFrames);
+  }
+
+  // Al finalizar, asegurar progreso 100%
+  onProgress?.call(1.0);
   return tokens;
 }
