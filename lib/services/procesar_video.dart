@@ -77,7 +77,7 @@ Future<List<String>> procesarVideo(String videoPath, YoloPredictor predictor, {P
   return tokens;
 }*/
 
-// procesar_video.dart
+//*FORMA 2// procesar_video.dart -->
 import 'dart:typed_data';
 import 'dart:io';
 import 'package:video_player/video_player.dart';
@@ -94,9 +94,9 @@ Future<List<String>> procesarVideo(
     String videoPath,
     YoloPredictor predictor, {
       Progress? onProgress,
-      int fps = 8, // subir de 3 a 5 puede ayudar si las señas son rápidas
-      int minConsecutive = 1, // cuántos frames iguales se requieren para aceptar
-      double threshold = 0.75, // confianza mínima
+      int fps = 5, // subir de 3 a 5 puede ayudar si las señas son rápidas
+      int minConsecutive = 2, // cuántos frames iguales se requieren para aceptar
+      double threshold = 0.85, // confianza mínima
     }) async {
   // 1) Obtener duración exacta con video_player
   final controller = VideoPlayerController.file(File(videoPath));
@@ -168,3 +168,103 @@ Future<List<String>> procesarVideo(
   onProgress?.call(1.0);
   return tokens;
 }
+
+
+/* Forma 3
+import 'dart:typed_data';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:video_compress/video_compress.dart';
+import 'predecir_video.dart';
+
+/// Procesa un video frame a frame, generando una secuencia de tokens (gestos reconocidos).
+Future<List<String>> procesarVideo({
+  required String videoPath,
+  required YoloPredictor predictor,
+  double threshold = 0.75,        // confianza mínima
+  int stepMs = 200,              // salto entre frames en milisegundos
+  int minConsecutive = 5,        // frames consecutivos necesarios para confirmar un gesto
+  int maxNullTolerance = 3,      // tolerancia a frames sin detección antes de resetear
+  void Function(double progress)? onProgress,
+}) async {
+  final List<String> tokens = [];
+
+  String? candidate;
+  int candidateCount = 0;
+  int nullFrameCount = 0;
+
+  // Duración total (en microsegundos → ms)
+  final info = await VideoCompress.getMediaInfo(videoPath);
+  final int? totalDurationMs = info.duration?.toInt();
+  if (totalDurationMs == null || totalDurationMs <= 0) {
+    throw Exception("No se pudo obtener la duración del video.");
+  }
+
+  final int totalFrames = (totalDurationMs / stepMs).ceil();
+
+  for (int i = 0; i < totalFrames; i++) {
+    final timeMs = i * stepMs;
+
+    final Uint8List? frameBytes = await VideoThumbnail.thumbnailData(
+      video: videoPath,
+      imageFormat: ImageFormat.PNG, // PNG reduce artefactos
+      timeMs: timeMs,
+      quality: 100,
+    );
+
+    if (frameBytes == null) {
+      onProgress?.call(i / totalFrames);
+      continue;
+    }
+
+    // Ejecutar predicción
+    final Prediction? pred = await predictor.runOnFrame(frameBytes, threshold: threshold);
+
+    // --- FILTROS ---
+    if (pred == null || pred.label == null) {
+      nullFrameCount += 1;
+
+      if (nullFrameCount >= maxNullTolerance) {
+        candidate = null;
+        candidateCount = 0;
+        nullFrameCount = 0;
+      }
+
+      onProgress?.call((i + 1) / totalFrames);
+      continue;
+    }
+
+    if (pred.score < threshold) {
+      // Confianza insuficiente → ignorar frame
+      onProgress?.call((i + 1) / totalFrames);
+      continue;
+    }
+
+    // Reiniciar contador de nulls porque tenemos algo válido
+    nullFrameCount = 0;
+
+    final String lbl = pred.label!;
+    final double score = pred.score;
+
+    // --- LÓGICA DE CANDIDATOS ---
+    if (candidate == lbl) {
+      candidateCount += 1;
+    } else {
+      candidate = lbl;
+      candidateCount = 1;
+    }
+
+    // Confirmar gesto si alcanza mínimo consecutivos
+    if (candidateCount >= minConsecutive) {
+      if (tokens.isEmpty || tokens.last != candidate) {
+        tokens.add(candidate!);
+      }
+      // Reset para exigir nueva confirmación más adelante
+      candidate = null;
+      candidateCount = 0;
+    }
+
+    onProgress?.call((i + 1) / totalFrames);
+  }
+
+  return tokens;
+}*/

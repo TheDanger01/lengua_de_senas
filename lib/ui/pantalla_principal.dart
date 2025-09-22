@@ -77,15 +77,29 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
 
     /*final res = await procesarVideo(_video!.path, _predictor, onProgress: (p) {
       setState(() { _progreso = p; });
-    });*/// Final res -- ORIGINAL ANTERIOR
+    });*/// Final res -- ORIGINAL ANTERIOR Forma 1
+    //Forma 2 Procesar
     final res = await procesarVideo(
       _video!.path,
       _predictor,
       onProgress: (p) { setState(() { _progreso = p; }); },
-      fps: 8,
-      minConsecutive: 1,
-      threshold: 0.75,
+      fps: 5,
+      minConsecutive: 2,
+      threshold: 0.85,
     );
+    /*Forma 3 Procesar
+    final res = await procesarVideo(
+      videoPath: _video!.path,
+      predictor: _predictor,
+      threshold: 0.75, // confianza mínima
+      stepMs: 100,     // equivale a ~10 fps (1000/100)
+      minConsecutive: 2,
+      onProgress: (p) {
+        setState(() {
+          _progreso = p;
+        });
+      },
+    );*/
 
 
     setState(() {

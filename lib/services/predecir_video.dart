@@ -106,7 +106,7 @@ class YoloPredictor {
   }
 }*/
 
-// predecir_video.dart
+// predecir_video.dart -->
 import 'dart:typed_data';
 import 'dart:math' as math;
 import 'package:image/image.dart' as img;

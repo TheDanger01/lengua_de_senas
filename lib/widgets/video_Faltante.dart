@@ -9,8 +9,7 @@
           Y Si Es Menor a 75% No Traducir Ese Frame (Omitirlo)
           Si Es Mayor a 75% Traducir Ese Frame
   
-  (Ya Esta Omitiendo Volver A Colocar Los Frames Repetidos. Si El Frame Es Igual Al Anterior No Lo Coloca Nuevamente)
-
+  Resolver Problema De al Actualizar video sigue traduciendo la misma letra Como arreglarlo-- NKFDSKDSF
 
   * Opcional
     - Crear Una Ventana Con Ejemplo De Cada Etiqueta
