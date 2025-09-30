@@ -94,9 +94,9 @@ Future<List<String>> procesarVideo(
     String videoPath,
     YoloPredictor predictor, {
       Progress? onProgress,
-      int fps = 5, // subir de 3 a 5 puede ayudar si las señas son rápidas
-      int minConsecutive = 2, // cuántos frames iguales se requieren para aceptar
-      double threshold = 0.85, // confianza mínima
+      int fps = 2, // subir de 3 a 5 puede ayudar si las señas son rápidas
+      int minConsecutive = 1, // cuántos frames iguales se requieren para aceptar
+      double threshold = 0.75, // confianza mínima
     }) async {
   // 1) Obtener duración exacta con video_player
   final controller = VideoPlayerController.file(File(videoPath));

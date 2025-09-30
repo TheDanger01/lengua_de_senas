@@ -56,6 +56,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logo.png
-    - assets/ModeloV3best_float16.tflite
-    - assets/ModeloV3best_float32.tflite
+    - assets/ModeloV3_100Epoch_float16.tflite
+    - assets/ModeloV3_100Epoch_float32.tflite
+    - assets/ModeloV4_200Epoch_float16.tflite
+    - assets/ModeloV4_200Epoch_float32.tflite
+    - assets/ModeloV5_150Epoch_float16.tflite
+    - assets/ModeloV5_150Epoch_float32.tflite
     - assets/ModeloV3metadata.yaml

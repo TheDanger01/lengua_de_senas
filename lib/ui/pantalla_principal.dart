@@ -83,9 +83,9 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
       _video!.path,
       _predictor,
       onProgress: (p) { setState(() { _progreso = p; }); },
-      fps: 5,
-      minConsecutive: 2,
-      threshold: 0.85,
+      fps: 2,
+      minConsecutive: 1,
+      threshold: 0.75,
     );
     /*Forma 3 Procesar
     final res = await procesarVideo(
