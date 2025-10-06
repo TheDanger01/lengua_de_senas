@@ -4,12 +4,22 @@ import 'package:image_picker/image_picker.dart';
 import '../services/predecir_video.dart';
 import '../services/procesar_video.dart';
 import '../widgets/mostrar_resultado.dart';
+import '../ui/gestos_reconocibles.dart';
 
-/// Pantalla principal de la aplicación.
-/// Permite:
-/// - Grabar un video con la cámara.
-/// - Procesar el video usando un modelo de predicción (YOLO + post-procesamiento).
-/// - Mostrar la traducción de la lengua de señas en texto.
+/// Pantalla principal del traductor de lenguaje de señas por video.
+///
+/// Funcionalidades principales:
+/// 1. Grabación de video (máx. 15 segundos) usando la cámara del dispositivo
+/// 2. Procesamiento del video mediante modelo YOLO para detectar gestos
+/// 3. Traducción de gestos a texto legible
+/// 4. Visualización de resultados con tokens individuales
+/// 5. Acceso al catálogo de gestos reconocibles
+///
+/// Flujo de trabajo:
+/// 1. Usuario presiona "Grabar video" → captura video de señas
+/// 2. Usuario presiona "Traducir" → procesa el video frame por frame
+/// 3. Sistema muestra progreso en tiempo real
+/// 4. Resultados se muestran como texto y tokens individuales
 class PantallaPrincipal extends StatefulWidget {
   const PantallaPrincipal({super.key});
 
@@ -17,23 +27,27 @@ class PantallaPrincipal extends StatefulWidget {
   State<PantallaPrincipal> createState() => _PantallaPrincipalState();
 }
 
-/// Estado asociado a [PantallaPrincipal].
-/// Contiene la lógica para grabar video, ejecutar la traducción
-/// y mostrar el progreso de procesamiento.
+/// Estado de la pantalla principal que gestiona el ciclo de vida completo
+/// del proceso de traducción de señas.
 class _PantallaPrincipalState extends State<PantallaPrincipal> {
+  /// SERVICIO Y DEPENDENCIAS
   /// Instancia del predictor YOLO encargado de cargar y ejecutar el modelo.
   final YoloPredictor _predictor = YoloPredictor();
 
+  // ESTADO DE VIDEO
   /// Archivo de video capturado por el usuario.
   File? _video;
+  // ESTADO DE PROCESAMIENTO
   /// Indica si el sistema está procesando el video actualmente.
   bool _procesando = false;
   /// Progreso del procesamiento del video (0.0 → 1.0).
   double _progreso = 0.0;
-  /// Tokens de texto resultantes de la traducción del video.
-  List<String> _tokens = [];
   /// Indica si el video ya fue procesado (para evitar reprocesar).
   bool _procesado = false;
+
+  // RESULTADOS DE TRADUCCIÓN
+  /// Tokens de texto resultantes de la traducción del video.
+  List<String> _tokens = [];
 
   @override
   void initState() {
@@ -41,13 +55,14 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     _initModel();
   }
 
-  /// Inicializa y carga el modelo de predicción.
+  // Inicializa y carga el modelo de predicción.
   Future<void> _initModel() async {
     await _predictor.loadModel();
     if (!mounted) return;
     setState(() {}); // refrescar estado
   }
 
+  // LOGICA DE GRABACION
   /// Graba un video usando la cámara del dispositivo.
   /// - Usa `image_picker` para abrir la cámara.
   /// - Limita la duración a 15 segundos.
@@ -56,7 +71,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     final picker = ImagePicker();
     final x = await picker.pickVideo(
         source: ImageSource.camera,
-        maxDuration: const Duration(seconds: 15)
+        maxDuration: const Duration(seconds: 15) // Limitar a 15 segundos
     );
     if (x == null) return;
     setState(() {
@@ -66,13 +81,26 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     });
   }
 
-  /// Traduce el video cargado mediante el modelo.
-  /// - Verifica que haya un video y que el modelo esté cargado.
-  /// - Muestra el progreso del procesamiento con [_progreso].
-  /// - Al finalizar, actualiza [_tokens] con los resultados.
+  // LOGICA DE TRADUCCION
+  /// Procesa el video y traduce los gestos a texto.
+  ///
+  /// Proceso:
+  /// 1. Valida que exista video y modelo cargado
+  /// 2. Extrae frames del video (5 FPS)
+  /// 3. Ejecuta YOLO en cada frame
+  /// 4. Filtra detecciones por confianza (>55%)
+  /// 5. Aplica filtro de consecutividad (mínimo 2 frames)
+  /// 6. Actualiza progreso en tiempo real
+  ///
+  /// Parámetros configurables en [procesarVideo]:
+  /// - fps: Frames por segundo a analizar (5 FPS = balance rendimiento/precisión)
+  /// - minConsecutive: Frames consecutivos mínimos para validar un gesto (2)
+  /// - threshold: Umbral de confianza mínimo (0.55 = 55%)
   Future<void> _traducir() async {
+    // Validaciones previas
     if (_video == null || !_predictor.isLoaded) return;
 
+    // Inicializa estado de procesamiento
     setState(() { _procesando = true; _progreso = 0.0; _tokens = []; _procesado = false; });
 
     /*final res = await procesarVideo(_video!.path, _predictor, onProgress: (p) {
@@ -89,6 +117,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     );
 
 
+    // Actualiza estado con resultados finales
     setState(() {
       _tokens = res;
       _procesando = false;
@@ -108,6 +137,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
   Widget build(BuildContext context) {
     final listo = _predictor.isLoaded; /// Verifica si el modelo está listo para usarse.
     final texto = _tokens.join(' ');
+
     // Calcular displayText según el estado actual (_video, _procesando, _procesado, _progreso)
     String displayText;
     if (_video == null) {
@@ -208,6 +238,27 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
                 displayText: displayText,
               ),
             ),
+
+            /// Boton Seccion Ejemplos Gestos Reconocibles
+            const SizedBox(height: 12), //separador arriba
+            SizedBox(
+             width: double.infinity, // Ancho completo
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GestosReconociblesPage(),),
+                  );
+                },
+                icon: const Icon(Icons.list),
+                label: const Text('Ver Gestos Reconocibles'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6F42C1), //Púrpura
+                  foregroundColor: Colors.white, //Blanco
+                  textStyle: const TextStyle(fontSize: 15),
+                ),
+              ),
+            )
           ],
         ),
       ),

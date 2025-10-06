@@ -1,16 +1,12 @@
-// Importa la librería de Dart para trabajar con archivos en el sistema.
-// En este caso, se usa para manipular el archivo de video grabado.
-// Importa el paquete image_picker, que permite acceder a la cámara
-// o galería del dispositivo para capturar imágenes o videos.
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+// Paquete image_picker, para acceder a la cámara o galería del dispositivo.
 
 /// Clase que encapsula la lógica para grabar un video desde la cámara.
 /// Se implementa como un "servicio" para separar la lógica de captura
 /// de la lógica de la interfaz de usuario.
 class VideoService {
-  // Se crea una instancia privada de ImagePicker, que será usada
-  // para acceder a la cámara del dispositivo.
+  // Se crea una instancia privada de ImagePicker, que será usada para acceder a la cámara del dispositivo.
   final ImagePicker _picker = ImagePicker();
 
   /// Metodo asíncrono que abre la cámara del dispositivo para grabar un video.

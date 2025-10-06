@@ -56,10 +56,36 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logo.png
-    - assets/ModeloV3_100Epoch_float16.tflite
-    - assets/ModeloV3_100Epoch_float32.tflite
     - assets/ModeloV4_200Epoch_float16.tflite
     - assets/ModeloV4_200Epoch_float32.tflite
-    - assets/ModeloV5_150Epoch_float16.tflite
-    - assets/ModeloV5_150Epoch_float32.tflite
-    - assets/ModeloV3metadata.yaml
+    - assets/ModeloV4metadata.yaml
+    - assets/LETRAS/LETRAS/A.jpg
+    - assets/LETRAS/LETRAS/B.jpg
+    - assets/LETRAS/LETRAS/C.jpg
+    - assets/LETRAS/LETRAS/D.jpg
+    - assets/LETRAS/LETRAS/E.jpg
+    - assets/LETRAS/LETRAS/F.jpg
+    - assets/LETRAS/LETRAS/G.jpg
+    - assets/LETRAS/LETRAS/GRACIAS.jpg
+    - assets/LETRAS/LETRAS/H.jpg
+    - assets/LETRAS/LETRAS/HOLA.jpg
+    - assets/LETRAS/LETRAS/I.jpg
+    - assets/LETRAS/LETRAS/J.jpg
+    - assets/LETRAS/LETRAS/K.jpg
+    - assets/LETRAS/LETRAS/L.jpg
+    - assets/LETRAS/LETRAS/M.jpg
+    - assets/LETRAS/LETRAS/N.jpg
+    - assets/LETRAS/LETRAS/O.jpg
+    - assets/LETRAS/LETRAS/P.jpg
+    - assets/LETRAS/LETRAS/POR FAVOR.jpg
+    - assets/LETRAS/LETRAS/Q.jpg
+    - assets/LETRAS/LETRAS/R.jpg
+    - assets/LETRAS/LETRAS/S.jpg
+    - assets/LETRAS/LETRAS/T.jpg
+    - assets/LETRAS/LETRAS/TE AMO.jpg
+    - assets/LETRAS/LETRAS/U.jpg
+    - assets/LETRAS/LETRAS/V.jpg
+    - assets/LETRAS/LETRAS/W.jpg
+    - assets/LETRAS/LETRAS/X.jpg
+    - assets/LETRAS/LETRAS/Y.jpg
+    - assets/LETRAS/LETRAS/Z.jpg
