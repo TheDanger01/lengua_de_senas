@@ -90,6 +90,7 @@ pubspec.yaml                        # Archivo de configuración de Flutter
 📘 *Proyecto de Título 2025*  
 🏫 **Universidad del Bío-Bío — Ingeniería Civil Informática**
 
+<br>
 
 ## 📄 Licencia
 Este proyecto está bajo la Licencia MIT. <br>
