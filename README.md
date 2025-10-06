@@ -15,7 +15,7 @@ Desarrollar una aplicación móvil que:
   Permite grabar o subir un video con gestos en lengua de señas para obtener una traducción automática al texto.
 
 - 🧠 **Modelo de IA integrado (TensorFlow Lite):**  
-  La app utiliza un modelo entrenado con **CNN + BiLSTM + CTC Loss** para reconocer gestos, letras y palabras completas.
+  La app utiliza un modelo entrenado con **YoloV8n** para reconocer gestos, letras y palabras completas.
 
 - 🖼️ **Sección de Gestos Reconocibles:**  
   Presenta una galería con ejemplos visuales de todos los gestos y su correspondiente interpretación en texto.
@@ -27,33 +27,33 @@ Desarrollar una aplicación móvil que:
   Interfaz limpia, con colores y tipografía pensados para mejorar la legibilidad y la usabilidad.
 
 ## 📱 Estructura general de la aplicación
+```text
 lib/
 ├── main.dart
 ├── ui/
-│ ├── pantalla_principal.dart # Página principal (inicio de la app)
-│ ├── gestos_reconocibles.dart # Sección con galería de gestos
-│ ├── vista_completa.dart # Pantalla para ver cada gesto en detalle
-│ ├── 
-│ └── predecir_video.dart # Lógica de predicción usando el modelo .tflite
+│   ├── pantalla_principal.dart     # Página principal (inicio de la app)
+│   ├── gestos_reconocibles.dart    # Sección con galería de gestos
+│   └── vista_completa.dart         # Pantalla para ver cada gesto en detalle
 │
 ├── services/
-│ ├── grabar_video.dart # Servicio para grabar o seleccionar video
-│ ├── predecir_gesto.dart # Servicio para procesar el video y predecir el gesto
-│ └── procesar_video.dart # Servicio para extraer frames del video
+│   ├── grabar_video.dart           # Servicio para grabar o seleccionar video
+│   ├── predecir_video.dart         # Lógica de predicción usando el modelo .tflite
+│   └── procesar_video.dart         # Servicio para extraer frames del video
 │
 ├── utils/
-│ └── etiquetas.dart # Lista de etiquetas (nombres de los gestos reconocidos)
+│   └── etiquetas.dart              # Lista de etiquetas (nombres de los gestos reconocidos)
 │
 ├── widgets/
-│ └── mostrar_resultado.dart # Widget que muestra la traducción predicha
+│   └── mostrar_resultado.dart      # Widget que muestra la traducción predicha
 │
 assets/
-├── Letras/ # Carpeta con Ejemplos de Imágenes de cada gesto (A, B, C, HOLA, etc.)
-├── Logo.png # Logo de la aplicación
-├── MODELO.tflite # Modelo de IA entrenado para reconocimiento de gestos
-└── data.yaml # Íconos o recursos gráficos
+├── Letras/                         # Carpeta con ejemplos de imágenes de cada gesto (A, B, C, HOLA, etc.)
+├── Logo.png                        # Logo de la aplicación
+├── MODELO.tflite                   # Modelo de IA entrenado para reconocimiento de gestos
+└── data.yaml                       # Archivo auxiliar del dataset
 │
-pubspec.yaml # Archivo de configuración de Flutter
+pubspec.yaml                        # Archivo de configuración de Flutter
+```
 
 ## 🛠️ Tecnologías utilizadas
 - **Flutter:** Framework para desarrollo de aplicaciones móviles multiplataforma.
