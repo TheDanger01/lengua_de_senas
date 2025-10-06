@@ -84,8 +84,8 @@ pubspec.yaml                        # Archivo de configuración de Flutter
 ## 👥 Autores
 
 👨‍💻 **Desarrolladores:** 
-[*Wilson Moreno*](https://github.com/TheDanger01)  
-[*Brandon Reyes*](https://github.com/bdreyes12)  
+ - [*Wilson Moreno*](https://github.com/TheDanger01)  
+ - [*Brandon Reyes*](https://github.com/bdreyes12)  
 
 📘 *Proyecto de Título 2025*  
 🏫 **Universidad del Bío-Bío — Ingeniería Civil Informática**
